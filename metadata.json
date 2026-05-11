@@ -1,0 +1,12 @@
+{
+  "name": "Archetype USA",
+  "description": "Historical athlete archetype engine connecting your traits to 120 years of Team USA excellence (1896-2026).",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "AI-powered archetype classification",
+    "Historical data comparison",
+    "What-if simulations",
+    "Accessibility-first design",
+    "Multidimensional Athlete DNA analysis"
+  ]
+}
