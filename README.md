@@ -16,11 +16,36 @@ Archetype USA is an analytical mirror that connects your unique physical and men
 
 - **Frontend**: React 18 with Vite, TypeScript, and Tailwind CSS.
 - **Animations**: Framer Motion for high-fidelity state transitions.
+- **Testing**: Vitest and React Testing Library for reproducible unit testing.
 - **Backend**: Node.js with Express (Full-Stack architecture).
 - **AI Engine**: Google Gemini AI Studio (Gemini 2.0 Flash) for biometric synthesis and predictive simulations.
 - **Deployment**: Google Cloud Run.
-- **Icons**: Lucide React.
-- **Typography**: Inter (UI) and Space Grotesk (Display).
+
+## Reproducible Testing
+
+Archetype USA includes a suite of automated tests to ensure the integrity of the biometric analysis logic and AI fallback mechanisms.
+
+### Running Tests Locally
+
+1. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Run Unit Tests**:
+   Execute the Vitest suite to verify the classification engine:
+   ```bash
+   npm test
+   ```
+
+3. **Continuous Integration**:
+   The `npm test` command runs in CI mode (`vitest run`), ensuring that any changes to the core algorithms are validated against historical markers before deployment.
+
+### Test Coverage
+
+Current tests cover:
+- **Biometric Fallback Logic**: Ensuring the application remains functional even if the Gemini API is inaccessible.
+- **Archetype Accuracy**: Validating that power-dominant and endurance-dominant traits correctly map to their respective historical clusters (e.g., "Precision Vanguard" vs "Aerobic Engine").
 
 ## Implementation Details: Gemini AI Studio
 
