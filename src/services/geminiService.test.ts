@@ -7,7 +7,10 @@ describe('geminiService', () => {
       strength: 5,
       speed: 5,
       endurance: 5,
-      adaptability: 5
+      adaptability: 5,
+      height: 180,
+      weight: 75,
+      interests: []
     };
 
     // We expect the fallback logic to kick in if we don't mock a successful response
@@ -24,7 +27,10 @@ describe('geminiService', () => {
       strength: 9,
       speed: 9,
       endurance: 2,
-      adaptability: 5
+      adaptability: 5,
+      height: 180,
+      weight: 75,
+      interests: []
     };
 
     const result = await analyzeBiometrics(traits);
@@ -38,7 +44,10 @@ describe('geminiService', () => {
       strength: 2,
       speed: 2,
       endurance: 9,
-      adaptability: 5
+      adaptability: 5,
+      height: 180,
+      weight: 75,
+      interests: []
     };
 
     const result = await analyzeBiometrics(traits);

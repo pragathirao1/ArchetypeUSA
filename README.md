@@ -47,6 +47,15 @@ Current tests cover:
 - **Biometric Fallback Logic**: Ensuring the application remains functional even if the Gemini API is inaccessible.
 - **Archetype Accuracy**: Validating that power-dominant and endurance-dominant traits correctly map to their respective historical clusters (e.g., "Precision Vanguard" vs "Aerobic Engine").
 
+## Data Sources & Archives
+
+Archetype USA utilizes a synthesized "Historical Pulse" engine that references performance patterns and biometric clusters derived from the following archival sources:
+
+1. **Olympic & Paralympic Results Archive (1896â€“2024)**: Historical performance markers, medal counts, and biometric archetypes for elite US athletes across three centuries.
+2. **Team USA Performance Clusters**: A structural mapping of specialized biometric parameters (Strength, Speed, Endurance) used to define elite training zones and historical twins.
+3. **National Center of Excellence Directory**: A curated database of elite training hubs, including Colorado Springs, Chula Vista, and Lake Placid, matched to metabolic recovery profiles.
+4. **IPC Para-sport Classification Standards**: International standards for matching adaptive traits to competitive sports classes (T-class sprints, F-class field events, etc.).
+
 ## Implementation Details: Gemini AI Studio
 
 Archetype USA utilizes the `@google/genai` SDK to interact with **Gemini 2.0 Flash**. The AI is tasked with:
