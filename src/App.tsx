@@ -107,7 +107,27 @@ export default function App() {
   });
   const [analysis, setAnalysis] = useState<AllAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const [analysisStatus, setAnalysisStatus] = useState('Initializing Mirror Sync...');
   const [errorState, setErrorState] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (step === 'analyzing') {
+      const statuses = [
+        'Connecting to 1896-2026 Archive Clusters...',
+        'Mapping Biometric Vectors...',
+        'Filtering Team USA Performance Data...',
+        'Synchronizing DNA Archetypes...',
+        'Generating Historical Narrative...',
+        'Finalizing Elite Identity...'
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        setAnalysisStatus(statuses[i % statuses.length]);
+        i++;
+      }, 800);
+      return () => clearInterval(interval);
+    }
+  }, [step]);
   const [simulationText, setSimulationText] = useState('');
   const [simResult, setSimResult] = useState<(SimulationResult & { audioScript?: string }) | null>(null);
   const [simLoading, setSimLoading] = useState(false);
@@ -379,7 +399,7 @@ export default function App() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)]" />
               <div className="relative z-10">
                 <div className="w-28 h-28 border-[6px] border-white/5 border-t-usa-red border-r-usa-gold rounded-full animate-spin mx-auto mb-10" />
-                <h2 className="text-3xl font-black mb-3 tracking-tighter uppercase italic">Synchronizing Archetypes</h2>
+                <h2 className="text-3xl font-black mb-3 tracking-tighter uppercase italic">{analysisStatus}</h2>
                 <p className="text-usa-gold font-mono text-sm tracking-[0.4em] font-bold">
                   CROSS-REFERENCING ARCHIVES: 1896 // 2026
                 </p>
@@ -514,35 +534,26 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Comparison Details */}
-                <div className="glass-panel p-6 border-r-2 border-r-usa-red/20">
+                {/* Team USA Comparison Details */}
+                <div className="glass-panel p-6 border-r-2 border-r-usa-red/20 bg-usa-navy/20">
                   <div className="flex items-center gap-2 mb-6">
-                    <Target className="w-5 h-5 text-usa-red" />
-                    <h3 className="text-xs uppercase font-bold tracking-[0.2em]">Gap Analysis</h3>
+                    <Users className="w-5 h-5 text-usa-red" />
+                    <h3 className="text-xs uppercase font-black tracking-[0.2em] text-white">Compare Me to Team USA</h3>
                   </div>
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-[10px] font-bold text-usa-gold uppercase mb-3 tracking-widest">Historical Logic</h4>
+                      <h4 className="text-[10px] font-bold text-usa-gold uppercase mb-3 tracking-widest bg-usa-gold/10 px-2 py-1 inline-block rounded">Alignment Protocol</h4>
+                      <p className="text-sm text-white font-bold mb-2">Closest Class: {analysis.comparison.closestArchetype}</p>
                       <p className="text-sm text-white/90 leading-relaxed italic font-medium">
                         {analysis.comparison.reasoning}
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-[10px] font-bold text-green-400 uppercase mb-3 tracking-widest">Alignment Strengths</h4>
+                      <h4 className="text-[10px] font-bold text-green-400 uppercase mb-3 tracking-widest">Team USA Matches</h4>
                       <div className="flex flex-wrap gap-1.5">
                         {analysis.comparison.alignedTraits.map(trait => (
-                          <span key={trait} className="px-2 py-1 bg-green-400/10 text-green-400 text-[10px] rounded border border-green-400/20">
+                          <span key={trait} className="px-2 py-1 bg-green-400/20 text-green-400 text-[10px] font-black rounded border border-green-400/20">
                             {trait}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-white/30 uppercase mb-3 tracking-widest">Structural Gaps</h4>
-                      <div className="flex flex-wrap gap-1.5">
-                        {analysis.comparison.gaps.map(gap => (
-                          <span key={gap} className="px-2 py-1 bg-white/5 text-white/40 text-[10px] rounded border border-white/10">
-                            {gap}
                           </span>
                         ))}
                       </div>

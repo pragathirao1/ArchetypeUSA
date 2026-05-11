@@ -64,65 +64,70 @@ export async function analyzeBiometrics(traits: UserTraits): Promise<AllAnalysis
     return JSON.parse(responseText.trim());
   } catch (error) {
     console.warn("Gemini API error, falling back to local simulation:", error);
-    // Return a high-quality fallback for demo purposes
+    
+    // Calculate pseudo-dynamic values based on traits
+    const isExplocive = traits.speed > 7 || traits.strength > 7;
+    const isEndurance = traits.endurance > 7;
+    const name = isExplocive ? "Precision Vanguard" : isEndurance ? "Aerobic Engine" : "Versatile Catalyst";
+    const score = 80 + Math.floor(Math.random() * 15);
+
     return {
       classification: {
-        name: "Precision Vanguard",
-        description: "You possess the explosive power and specialized focus typical of elite track and field specialists. Your biometric markers suggest a high fast-twitch muscle fiber density and mechanical efficiency.",
-        keyTraits: ["Explosive", "Laser-Focused", "Resilient", "Strategic"],
+        name: name,
+        description: `Based on your traits (S:${traits.strength}, Sp:${traits.speed}, E:${traits.endurance}), you possess a profile matching ${isExplocive ? "short-burst power specialists" : "sustained output legends"}.`,
+        keyTraits: isExplocive ? ["Explosive", "Reactive", "Powerful"] : ["Efficient", "Resilient", "Steady"],
         sports: {
-          olympic: ["100m Sprint", "Long Jump"],
-          paralympic: ["T64 Sprint", "T63 Long Jump"]
+          olympic: isExplocive ? ["Weightlifting", "Short Track"] : ["Marathon", "Triathlon"],
+          paralympic: isExplocive ? ["Shot Put", "T54 Sprint"] : ["Para-Cycling", "Wheelchair Racing"]
         }
       },
       comparison: {
-        closestArchetype: "The Silver Bullet",
-        similarityScore: 92,
-        reasoning: "Your strength-to-weight ratio closely masks the profile of mid-20th century speed pioneers.",
-        alignedTraits: ["Leg Drive", "Mental Fortitude"],
-        gaps: ["Lateral Agility", "Cold Weather Acclimation"],
-        suggestions: ["Incorporate plyometric depth jumps", "Focus on post-activation potentiation"]
+        closestArchetype: isExplocive ? "The Bolt" : "The Pacer",
+        similarityScore: score,
+        reasoning: `Your ${isExplocive ? "power-to-weight" : "oxidative capacity"} markers are highly characteristic of the ${isExplocive ? "1980s power era" : "modern endurance wave"}.`,
+        alignedTraits: isExplocive ? ["Fast-Twitch Drive", "Peak Torque"] : ["V02 Threshold", "Mental Pacing"],
+        gaps: isExplocive ? ["Aerobic Floor"] : ["Anaerobic Burst"],
+        suggestions: ["Incorporate interval contrast training", "Optimize recovery nutrition"]
       },
       story: {
-        narrative: "In the shadow of the 1968 Games, your archetype rose from the red clay tracks of California. You are the embodiment of raw momentum, a human vector calculated to bridge the gap between human limits and historical legends."
+        narrative: `You are a reflection of the ${isExplocive ? "explosive pioneers" : "endurance architects"} who redefined the Games in the ${isExplocive ? "mid-80s" : "late-90s"}.`
       },
       dna: {
         traitDistribution: [
-          { trait: "Explosiveness", value: 9 },
-          { trait: "Endurance", value: 4 },
-          { trait: "Strength", value: 8 },
-          { trait: "Speed", value: 9 }
+          { trait: "Explosiveness", value: traits.speed },
+          { trait: "Endurance", value: traits.endurance },
+          { trait: "Strength", value: traits.strength },
+          { trait: "Adaptability", value: 7 }
         ],
-        clusters: ["Fast-Twitch Dominant", "Anaerobic Power"],
-        visualExplanation: "Your DNA vector shows a sharp peak in anaerobic capacity, suggesting you excel in short-duration, high-intensity efforts rather than aerobic steady-state."
+        clusters: [isExplocive ? "Power Cluster" : "Stamina Cluster"],
+        visualExplanation: "Your DNA vector highlights a specific specialization in high-output performance metrics."
       },
       trainingZone: {
-        geography: "Chula Vista Elite Training Center",
-        reasoning: "Optimal humidity and specialized track surfaces matched to your impact profile.",
-        advantage: "Low atmospheric drag and high-caliber peer clusters."
+        geography: isExplocive ? "Chula Vista, CA" : "Colorado Springs, CO",
+        reasoning: "Matched to your specific metabolic recovery patterns.",
+        advantage: "Access to elite historical data mirrors."
       },
       historicalTwin: {
-        era: "The Golden Sprint Era (1984-1996)",
-        reasoning: "Matches the biometric efficiency of the decade where speed records were shattered through refined mechanics.",
-        pattern: "Low-Profile Start / High-Velocity Finish"
+        era: isExplocive ? "The Golden Power Era" : "The Endurance Revolution",
+        reasoning: "Matches biometric data from the archives.",
+        pattern: "Sustained Technical Mastery"
       },
       crossSportIdentity: {
         overlaps: [
-          { sport: "Bobsleigh", reason: "Explosive start power is highly transferable to push-athlete roles." },
-          { sport: "Skeleton", reason: "High-velocity tolerance and precise center-of-gravity control." }
+          { sport: isExplocive ? "Bobsleigh" : "Swimming", reason: "Direct biomechanical transferability." }
         ]
       },
       adaptiveInsights: {
-        mobilityStrengths: ["Lower limb power", "Reactive balance"],
-        classificationExplanation: "Your profile suggests potential in T-class track events where energy return is localized in the ankles/feet.",
+        mobilityStrengths: ["Joint stability", "Reactive force"],
+        classificationExplanation: "Your profile provides optimal energy return for adaptive track events.",
         sportsAlignment: ["Para-Athletics", "Cycling"]
       },
       futureDrift: {
-        currentArchetype: "Explosive Specialist",
-        futureShift: "Hybrid Performance Engine",
-        conditions: "Requires 12 weeks of aerobic base building and sustained technical refinement."
+        currentArchetype: name,
+        futureShift: "Hybrid Specialist",
+        conditions: "Requires cross-discipline volume increase."
       },
-      audioScript: "You have been matched with the Precision Vanguard archetype. This identity is defined by explosive power and specialized focus. You share 92 percent similarity with mid-twentieth century speed pioneers. Your training is best suited for the Chula Vista Elite Training Center, where you can leverage your fast-twitch muscle dominance. You are not just an athlete; you are a human vector bridge between history and the future."
+      audioScript: `Your data mirror sync is complete. You have been classified as a ${name} with a ${score} percent similarity to historical Team USA clusters. Your profile shows specific strength in your performance vectors.`
     };
   }
 }
