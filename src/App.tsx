@@ -21,168 +21,77 @@ import {
   Square,
   Navigation
 } from 'lucide-react';
-import { APIProvider, Map, AdvancedMarker, Pin, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { UserTraits, AllAnalysis, SimulationResult } from './types';
 import { analyzeBiometrics, runSimulation } from './services/geminiService';
 
-const MAPS_API_KEY =
-  process.env.GOOGLE_MAPS_PLATFORM_KEY ||
-  (import.meta as any).env?.VITE_GOOGLE_MAPS_PLATFORM_KEY ||
-  '';
-const hasValidMapsKey = Boolean(MAPS_API_KEY) && MAPS_API_KEY !== 'YOUR_API_KEY';
+function RegionalHubDirectory() {
+  const hubs = [
+    { name: "Olympic & Paralympic Training Center", location: "Colorado Springs, CO", focus: "All-Sport Excellence / High Altitude", specialties: ["Gymnastics", "Shooting", "Aquatics", "Judo"] },
+    { name: "Lake Placid Training Center", location: "Lake Placid, NY", focus: "Winter Sports Hub", specialties: ["Bobsleigh", "Skeleton", "Luge", "Biathlon"] },
+    { name: "Chula Vista Elite Training Center", location: "Chula Vista, CA", focus: "Warm Weather Track & Field", specialties: ["Archery", "Cycling", "Rugby", "Track & Field"] },
+    { name: "Spire Institute", location: "Geneva, OH", focus: "Multi-Sport Advanced Training", specialties: ["Swimming", "Basketball", "Track"] },
+    { name: "National Training Center", location: "Clermont, FL", focus: "Sprinting / Endurance", specialties: ["Triathlon", "Sprints", "Speed Skating (Inland)"] }
+  ];
 
-function SportsTrainingFinder({ interests }: { interests: string[] }) {
-  const [searchQuery, setSearchQuery] = useState(interests[0] || '');
-  const [places, setPlaces] = useState<google.maps.places.Place[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState('');
 
-  if (!hasValidMapsKey) {
-    return (
-      <div className="glass-panel p-8 text-center bg-usa-navy/50 border-usa-gold/20">
-        <MapPin className="w-12 h-12 text-usa-gold mx-auto mb-4 opacity-50" />
-        <h3 className="text-xl font-bold mb-4 uppercase tracking-tighter text-white">Sports Complex & Training Finder</h3>
-        <div className="max-w-md mx-auto text-sm text-white/80 space-y-4">
-          <p>To access the global directory of US training facilities, a Google Maps API Key is required.</p>
-          <div className="text-left space-y-2 bg-black/30 p-4 rounded-lg border border-white/10">
-            <p className="font-bold text-[10px] text-usa-gold uppercase tracking-widest">Setup Instructions:</p>
-            <ol className="list-decimal list-inside text-[10px] space-y-1 text-white/90">
-              <li>Get an API key: <a href="https://console.cloud.google.com/google/maps-apis/start" target="_blank" className="text-usa-red underline font-bold">Cloud Console</a></li>
-              <li><strong>CRITICAL:</strong> Enable the <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" className="text-usa-gold underline font-bold">Places API (New)</a></li>
-              <li>Open <strong>Settings</strong> (⚙️) → <strong>Secrets</strong></li>
-              <li>Add <code>GOOGLE_MAPS_PLATFORM_KEY</code> as the name</li>
-              <li>Paste your key as the value</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const filteredHubs = hubs.filter(h => 
+    h.name.toLowerCase().includes(filter.toLowerCase()) || 
+    h.specialties.some(s => s.toLowerCase().includes(filter.toLowerCase()))
+  );
 
   return (
-    <APIProvider apiKey={MAPS_API_KEY} version="weekly">
-      <div className="glass-panel p-6 bg-usa-red/5">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Search className="w-5 h-5 text-usa-gold" />
-            <h3 className="text-xs uppercase font-bold tracking-[0.2em] text-white">Training Facility Finder</h3>
+    <div className="glass-panel p-6 bg-usa-red/5 border-usa-red/20 shadow-xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-usa-red/10 rounded-lg">
+            <MapPin className="w-5 h-5 text-usa-red" />
           </div>
-          <div className="flex w-full md:w-auto gap-2">
-            <input 
-              type="text" 
-              placeholder="Search sport or location..."
-              className="flex-1 md:w-64 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm outline-none focus:border-usa-gold transition-colors text-white placeholder:text-white/40"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-[0.2em]">US Center of Excellence Directory</h3>
+            <p className="text-[10px] text-white/60 font-mono italic">Verified Historical Hubs & Training Zones</p>
           </div>
         </div>
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+          <input 
+            type="text" 
+            placeholder="Search by sport or region..."
+            className="w-full bg-white/10 border border-white/20 rounded-lg py-2 pl-10 pr-4 text-sm outline-none focus:border-usa-red transition-all"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
+        </div>
+      </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-usa-red/20 border border-usa-red/40 rounded-lg text-xs flex items-start gap-3">
-            <Info className="w-4 h-4 text-usa-red flex-shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-bold text-usa-red">API ACCESS ERROR</p>
-              <p className="text-white/80">{error}</p>
-              <p className="text-white/40 italic">Note: Propagating API changes can take 5-10 minutes. Ensure "Places API (New)" is enabled in your Google Cloud Project.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredHubs.map(hub => (
+          <div key={hub.name} className="p-4 bg-white/5 rounded-xl border border-white/10 hover:border-usa-red/30 transition-all group">
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="text-white font-bold text-sm group-hover:text-usa-red transition-colors">{hub.name}</h4>
+              <Navigation className="w-3 h-3 text-white/20 group-hover:text-usa-red/50" />
+            </div>
+            <p className="text-[10px] text-usa-gold font-bold uppercase tracking-widest mb-3 flex items-center gap-1">
+              <MapPin className="w-3 h-3" /> {hub.location}
+            </p>
+            <p className="text-xs text-white/70 mb-4 font-medium">{hub.focus}</p>
+            <div className="flex flex-wrap gap-2">
+              {hub.specialties.map(s => (
+                <span key={s} className="px-2 py-0.5 bg-usa-navy text-[9px] font-bold text-white/80 rounded border border-white/10">
+                  {s}
+                </span>
+              ))}
             </div>
           </div>
+        ))}
+        {filteredHubs.length === 0 && (
+          <div className="col-span-full py-12 text-center text-white/30 border-2 border-dashed border-white/5 rounded-2xl">
+            <Search className="w-8 h-8 mx-auto mb-2 opacity-20" />
+            <p className="text-xs uppercase font-bold tracking-widest">No matching training hubs found in archives</p>
+          </div>
         )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
-          <div className="lg:col-span-2 rounded-xl overflow-hidden border border-white/10 h-full relative">
-            <Map
-              defaultCenter={{ lat: 39.8283, lng: -98.5795 }} // Center of USA
-              defaultZoom={4}
-              mapId="D7E6B9A8C5D3E1A2"
-              internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
-              style={{ width: '100%', height: '100%' }}
-              colorScheme="DARK"
-            >
-              <PlaceMarkers query={searchQuery} places={places} setPlaces={setPlaces} setLoading={setLoading} setError={setError} />
-            </Map>
-          </div>
-          <div className="glass-panel bg-black/40 overflow-y-auto p-4 custom-scrollbar h-full border-white/10">
-            <h4 className="text-[10px] font-bold text-usa-gold uppercase mb-4 tracking-widest bg-usa-gold/10 p-1 px-2 rounded inline-block">Detected Facilities</h4>
-            {loading ? (
-              <div className="flex flex-col items-center justify-center h-64 text-white/50">
-                <RotateCcw className="w-8 h-8 animate-spin mb-4 text-usa-gold" />
-                <span className="text-[10px] uppercase font-black tracking-[0.3em]">Scanning USA Infrastructure...</span>
-              </div>
-            ) : places.length > 0 ? (
-              <div className="space-y-4">
-                {places.map(place => (
-                  <div key={place.id} className="p-3 bg-white/5 rounded border border-white/10 hover:border-usa-gold/30 transition-all group cursor-pointer hover:bg-white/10" onClick={() => {
-                    // Logic to pan to place on map could be added here
-                  }}>
-                    <p className="text-sm font-bold text-white group-hover:text-usa-gold transition-colors">{place.displayName}</p>
-                    <p className="text-[10px] text-white/60 mt-1 leading-tight flex items-start gap-1">
-                      <MapPin className="w-3 h-3 flex-shrink-0 mt-0.5" /> {place.formattedAddress}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-white/40 text-[10px] uppercase font-bold text-center tracking-widest gap-4">
-                <Navigation className="w-8 h-8 opacity-20" />
-                <span>No facilities detected.<br/>Try: "Fencing Club NY" or "Gymnastics LA"</span>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
-    </APIProvider>
-  );
-}
-
-function PlaceMarkers({ query, places, setPlaces, setLoading, setError }: { 
-  query: string; 
-  places: google.maps.places.Place[];
-  setPlaces: (places: google.maps.places.Place[]) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-}) {
-  const placesLib = useMapsLibrary('places');
-  const map = useMap();
-
-  useEffect(() => {
-    if (!placesLib || !query || !map) return;
-    
-    setLoading(true);
-    setError(null);
-    const timeout = setTimeout(() => {
-      placesLib.Place.searchByText({
-        textQuery: `${query} training sports complex united states`,
-        fields: ['displayName', 'location', 'formattedAddress', 'id', 'rating', 'userRatingCount'],
-        maxResultCount: 20,
-      }).then(({ places }) => {
-        setPlaces(places);
-        setLoading(false);
-        if (places.length > 0) {
-          const bounds = new google.maps.LatLngBounds();
-          places.forEach(p => {
-            if (p.location) bounds.extend(p.location);
-          });
-          map.fitBounds(bounds);
-        }
-      }).catch(err => {
-        console.error(err);
-        setError(err.message || 'An error occurred while searching for facilities.');
-        setLoading(false);
-      });
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [placesLib, query, map]);
-
-  return (
-    <>
-      {places.map(p => (
-        <AdvancedMarker key={p.id} position={p.location}>
-          <Pin background="#D4AF37" borderColor="#D4AF37" glyphColor="#000" scale={0.8} />
-        </AdvancedMarker>
-      ))}
-    </>
+    </div>
   );
 }
 
@@ -198,21 +107,31 @@ export default function App() {
   });
   const [analysis, setAnalysis] = useState<AllAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const [errorState, setErrorState] = useState<string | null>(null);
   const [simulationText, setSimulationText] = useState('');
   const [simResult, setSimResult] = useState<(SimulationResult & { audioScript?: string }) | null>(null);
   const [simLoading, setSimLoading] = useState(false);
+  const [simError, setSimError] = useState<string | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isPlayingSimAudio, setIsPlayingSimAudio] = useState(false);
 
   const startAnalysis = async () => {
     setStep('analyzing');
     setLoading(true);
+    setErrorState(null);
     try {
       const result = await analyzeBiometrics(traits);
       setAnalysis(result);
       setStep('results');
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      let message = "An error occurred during synchronization.";
+      if (error?.message?.includes("credits are depleted")) {
+        message = "Gemini API credits are depleted. Please check your AI Studio billing settings.";
+      } else if (error?.status === "RESOURCE_EXHAUSTED") {
+        message = "AI Quota reached. Please try again later.";
+      }
+      setErrorState(message);
       setStep('form');
     } finally {
       setLoading(false);
@@ -222,11 +141,13 @@ export default function App() {
   const handleSimulate = async () => {
     if (!simulationText) return;
     setSimLoading(true);
+    setSimError(null);
     try {
       const result = await runSimulation(traits, simulationText);
       setSimResult(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      setSimError(error?.message?.includes("credits") ? "Credits depleted" : "Simulation failed");
     } finally {
       setSimLoading(false);
     }
@@ -321,15 +242,15 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left max-w-3xl mx-auto border-t border-white/10 pt-12">
                   <div>
                     <h4 className="data-accent mb-2">Historical Pulse</h4>
-                    <p className="text-[10px] text-white/50 leading-tight uppercase font-medium">Synced with Olympic & Paralympic patterns through 2026.</p>
+                    <p className="text-[10px] text-white/70 leading-tight uppercase font-medium italic">Synced with Olympic & Paralympic patterns through 2026.</p>
                   </div>
                   <div>
                     <h4 className="data-accent mb-2">Vector Mapping</h4>
-                    <p className="text-[10px] text-white/50 leading-tight uppercase font-medium">Multidimensional analysis of DNA clusters and training zones.</p>
+                    <p className="text-[10px] text-white/70 leading-tight uppercase font-medium italic">Multidimensional analysis of DNA clusters and training zones.</p>
                   </div>
                   <div>
                     <h4 className="data-accent mb-2">Audio Fidelity</h4>
-                    <p className="text-[10px] text-white/50 leading-tight uppercase font-medium">Full accessibility support for spoken athlete reflections.</p>
+                    <p className="text-[10px] text-white/70 leading-tight uppercase font-medium italic">Full accessibility support for spoken athlete reflections.</p>
                   </div>
                 </div>
               </div>
@@ -348,6 +269,18 @@ export default function App() {
                 <Activity className="text-usa-red w-6 h-6" />
                 <h2 className="text-xl">Biometric & Ability Profile</h2>
               </div>
+
+              {errorState && (
+                <div className="mb-8 p-4 bg-usa-red/10 border border-usa-red/30 rounded-xl flex items-start gap-4">
+                  <div className="bg-usa-red p-2 rounded-lg shadow-lg shadow-usa-red/20">
+                    <Info className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-usa-red mb-1">SYSTEM ERROR</p>
+                    <p className="text-xs text-white/70 leading-relaxed">{errorState}</p>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
@@ -522,7 +455,7 @@ export default function App() {
                         className="h-full bg-gradient-to-r from-usa-red to-usa-gold" 
                       />
                     </div>
-                    <p className="mt-4 text-[10px] text-white/40 max-w-[150px] text-center leading-tight uppercase font-medium">
+                    <p className="mt-4 text-[10px] text-white/70 max-w-[150px] text-center leading-tight uppercase font-bold">
                       Compared to verified Team USA performance clusters (1896-2026)
                     </p>
                   </div>
@@ -551,7 +484,7 @@ export default function App() {
                     ))}
                   </div>
                   <div className="mt-6 pt-4 border-t border-white/5">
-                    <p className="text-[10px] text-white/50 leading-relaxed italic">
+                    <p className="text-[10px] text-white/70 leading-relaxed italic font-medium">
                       {analysis.dna.visualExplanation}
                     </p>
                   </div>
@@ -565,7 +498,7 @@ export default function App() {
                       <h3 className="text-xs uppercase font-bold tracking-[0.2em]">Historical Twin Cluster</h3>
                     </div>
                     <p className="text-lg font-display font-black text-white mb-2">{analysis.historicalTwin.era}</p>
-                    <p className="text-sm text-white/60 leading-relaxed">
+                    <p className="text-sm text-white/80 leading-relaxed">
                       {analysis.historicalTwin.reasoning}
                     </p>
                   </div>
@@ -575,7 +508,7 @@ export default function App() {
                       <h3 className="text-xs uppercase font-bold tracking-[0.2em]">Optimal Training Zone</h3>
                     </div>
                     <p className="text-lg font-display font-bold text-usa-gold mb-1">{analysis.trainingZone.geography}</p>
-                    <p className="text-xs text-white/60">
+                    <p className="text-xs text-white/80">
                       {analysis.trainingZone.reasoning}
                     </p>
                   </div>
@@ -588,6 +521,12 @@ export default function App() {
                     <h3 className="text-xs uppercase font-bold tracking-[0.2em]">Gap Analysis</h3>
                   </div>
                   <div className="space-y-6">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-usa-gold uppercase mb-3 tracking-widest">Historical Logic</h4>
+                      <p className="text-sm text-white/90 leading-relaxed italic font-medium">
+                        {analysis.comparison.reasoning}
+                      </p>
+                    </div>
                     <div>
                       <h4 className="text-[10px] font-bold text-green-400 uppercase mb-3 tracking-widest">Alignment Strengths</h4>
                       <div className="flex flex-wrap gap-1.5">
@@ -623,7 +562,7 @@ export default function App() {
                     {analysis.crossSportIdentity.overlaps.map(overlap => (
                       <div key={overlap.sport} className="p-3 bg-white/5 rounded border border-white/10">
                         <p className="text-sm font-bold text-usa-gold mb-1">{overlap.sport}</p>
-                        <p className="text-xs text-white/50">{overlap.reason}</p>
+                        <p className="text-xs text-white/80 font-medium">{overlap.reason}</p>
                       </div>
                     ))}
                   </div>
@@ -716,6 +655,14 @@ export default function App() {
                         <RotateCcw className={`w-4 h-4 ${simLoading ? 'animate-spin' : ''}`} />
                       </button>
                     </div>
+
+                    {simError && (
+                      <div className="p-3 bg-usa-red/10 border border-usa-red/20 rounded text-[10px] text-usa-red font-bold flex items-center gap-2">
+                        <Info className="w-3 h-3" />
+                        {simError}
+                      </div>
+                    )}
+
                     <AnimatePresence>
                       {simResult && (
                         <motion.div 
@@ -746,8 +693,8 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Sports Training Finder */}
-              <SportsTrainingFinder interests={analysis.classification.sports.olympic.concat(analysis.classification.sports.paralympic)} />
+              {/* Training Hub Directory */}
+              <RegionalHubDirectory />
 
               {/* Coaching Insights */}
               <div className="glass-panel p-8 bg-gradient-to-br from-usa-navy to-black border-usa-gold/30">
@@ -785,17 +732,17 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <footer className="mt-auto py-10 text-white/70 text-[9px] font-mono uppercase tracking-[0.3em] flex flex-col items-center gap-6 text-center">
+      <footer className="mt-auto py-10 text-white font-mono uppercase tracking-[0.3em] flex flex-col items-center gap-6 text-center">
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 px-4 italic">
-          <span className="flex items-center gap-2 font-bold"><Trophy className="w-3 h-3" /> Historical Pulse v3.4</span>
-          <span className="text-white/20">|</span>
-          <span className="flex items-center gap-2 font-bold"><MapPin className="w-3 h-3" /> Training Zone Mapping Active</span>
-          <span className="text-white/20">|</span>
-          <span className="flex items-center gap-2 font-bold"><Volume2 className="w-3 h-3" /> Accessibility Core Engaged</span>
-          <span className="text-white/20">|</span>
-          <span className="font-bold">© 1896-2026 Archive Clusters</span>
+          <span className="flex items-center gap-2 font-black text-white"><Trophy className="w-3 h-3" /> Historical Pulse v3.4</span>
+          <span className="text-white/40">|</span>
+          <span className="flex items-center gap-2 font-black text-white"><MapPin className="w-3 h-3" /> Training Zone Mapping Active</span>
+          <span className="text-white/40">|</span>
+          <span className="flex items-center gap-2 font-black text-white"><Volume2 className="w-3 h-3" /> Accessibility Core Engaged</span>
+          <span className="text-white/40">|</span>
+          <span className="font-black text-white">© 1896-2026 Archive Clusters</span>
         </div>
-        <p className="max-w-md text-white/80 leading-relaxed font-sans normal-case text-[10px] px-6">
+        <p className="max-w-md text-white/90 leading-relaxed font-sans normal-case text-[10px] px-6 font-bold">
           Archetype USA is an analytical mirror connecting your unique traits to historical excellence clusters. 
           Alignment insights are pattern-based and do not guarantee professional athletic selection or outcomes.
         </p>
